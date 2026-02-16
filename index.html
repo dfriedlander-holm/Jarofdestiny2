@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notetaker Rotator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">Weekly Meeting Tool</p>
+        <h1>Random Notetaker Rotation</h1>
+        <p>
+          Fair random picker for 10 people, with reduced odds for anyone who submitted notes
+          late in the prior two weeks.
+        </p>
+      </header>
+
+      <section class="card controls">
+        <div>
+          <h2>Pick This Week</h2>
+          <p>Use weighted random selection based on recent picks and late-note penalties.</p>
+        </div>
+        <button id="pickBtn" class="btn-primary">Pick Notetaker</button>
+      </section>
+
+      <section id="resultCard" class="card result hidden" aria-live="polite">
+        <h2>This Week's Notetaker</h2>
+        <p id="resultName" class="result-name"></p>
+        <label class="late-toggle">
+          <input id="lateCheckbox" type="checkbox" />
+          Mark notes as submitted late
+        </label>
+        <button id="saveMeetingBtn" class="btn-primary">Save Meeting</button>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <div class="card-head">
+            <h2>Team (10 people)</h2>
+            <button id="resetBtn" class="btn-ghost">Reset Data</button>
+          </div>
+          <p>Edit names inline. All changes auto-save.</p>
+          <ul id="peopleList" class="people-list"></ul>
+        </article>
+
+        <article class="card">
+          <h2>Recent Meetings</h2>
+          <p>Most recent first. Toggle late status if needed.</p>
+          <ul id="historyList" class="history-list"></ul>
+        </article>
+      </section>
+    </main>
+
+    <template id="personTemplate">
+      <li class="person-row">
+        <input class="name-input" maxlength="40" />
+        <div class="meta">
+          <span class="pill pick-count"></span>
+          <span class="pill penalty"></span>
+        </div>
+      </li>
+    </template>
+
+    <template id="meetingTemplate">
+      <li class="meeting-row">
+        <div>
+          <strong class="meeting-name"></strong>
+          <p class="meeting-date"></p>
+        </div>
+        <label class="late-toggle small">
+          <input class="meeting-late" type="checkbox" />
+          Late
+        </label>
+      </li>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
