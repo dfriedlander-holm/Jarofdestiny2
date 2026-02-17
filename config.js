@@ -1,0 +1,5 @@
+window.APP_CONFIG = {
+  SUPABASE_URL: "https://wbtxsultendctlckdbbu.supabase.co",
+  SUPABASE_ANON_KEY:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndidHhzdWx0ZW5kY3RsY2tkYmJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyOTU5NTUsImV4cCI6MjA4Njg3MTk1NX0.AHMqfkg4UDyDHK1CZAzDeL8jQwkilfQ6yVw1Xi8NHB4"
+};
