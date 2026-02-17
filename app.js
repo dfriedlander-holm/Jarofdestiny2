@@ -458,7 +458,16 @@ function escapeHtml(value) {
 }
 
 function runTrialSimulation(trialCount = 1000) {
-  if (!appState) return;
+  if (!debugTrialsResults) {
+    setStatus("Debug results container is missing in HTML.", "error");
+    return;
+  }
+  if (!appState) {
+    debugTrialsResults.innerHTML = "<p>State not loaded yet. Wait for sync, then try again.</p>";
+    debugTrialsResults.classList.remove("hidden");
+    setStatus("State not loaded yet. Try again in a moment.", "error");
+    return;
+  }
 
   const derived = computeDerived(appState);
   const weightData = computeWeightData(appState, derived);
@@ -555,7 +564,9 @@ debugBtn.addEventListener("click", openDebugDialog);
 debugCloseBtn.addEventListener("click", closeDebugDialog);
 debugResetMeetingsBtn.addEventListener("click", resetMeetingsList);
 debugResetOddsBtn.addEventListener("click", resetOddsOnly);
-debugTrialsBtn.addEventListener("click", () => runTrialSimulation(1000));
+if (debugTrialsBtn) {
+  debugTrialsBtn.addEventListener("click", () => runTrialSimulation(1000));
+}
 
 async function initializeSharedState() {
   const config = window.APP_CONFIG || {};
