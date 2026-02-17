@@ -56,6 +56,11 @@ h2 {
 
 .hero h1 {
   color: var(--primary);
+  font-family: "Cinzel", serif;
+  font-size: clamp(2.1rem, 5.6vw, 4rem);
+  letter-spacing: 0.04em;
+  font-variant: small-caps;
+  line-height: 1.05;
 }
 
 .card {
