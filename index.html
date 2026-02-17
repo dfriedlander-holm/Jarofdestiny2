@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notetaker Rotator</title>
+    <title>Digital Jar of Destiny</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,7 +16,7 @@
     <main class="app-shell">
       <header class="hero">
         <p class="eyebrow">Weekly Meeting Tool</p>
-        <h1>Random Notetaker Rotation</h1>
+        <h1>Digital Jar of Destiny</h1>
         <p>
           Fair random picker for 10 people, with a reduced chance for the person who took notes
           last week.
@@ -45,7 +45,10 @@
         <article class="card">
           <div class="card-head">
             <h2>Team (10 people)</h2>
-            <button id="resetBtn" class="btn-ghost">Reset Data</button>
+            <div class="head-actions">
+              <button id="resetOddsBtn" class="btn-ghost">Reset Odds (Debug)</button>
+              <button id="resetBtn" class="btn-ghost">Reset Data</button>
+            </div>
           </div>
           <p>Edit names inline. All changes auto-save.</p>
           <ul id="peopleList" class="people-list"></ul>

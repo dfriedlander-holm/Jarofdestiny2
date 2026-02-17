@@ -10,6 +10,7 @@ const resultName = document.getElementById("resultName");
 const saveMeetingBtn = document.getElementById("saveMeetingBtn");
 const cancelPickBtn = document.getElementById("cancelPickBtn");
 const resetBtn = document.getElementById("resetBtn");
+const resetOddsBtn = document.getElementById("resetOddsBtn");
 const peopleList = document.getElementById("peopleList");
 const historyList = document.getElementById("historyList");
 const personTemplate = document.getElementById("personTemplate");
@@ -400,6 +401,31 @@ resetBtn.addEventListener("click", async () => {
     render();
   } catch {
     setStatus("Could not reset shared state. Check your Supabase config.", "error");
+  }
+});
+
+resetOddsBtn.addEventListener("click", async () => {
+  const confirmed = window.confirm("Reset odds by clearing meeting history for everyone? Names will stay.");
+  if (!confirmed || !appState) return;
+
+  const nextState = structuredClone(appState);
+  nextState.meetings = [];
+
+  try {
+    await saveStateToSupabase(nextState);
+    if (pendingPick) {
+      try {
+        await releasePickLock();
+      } catch {
+        setStatus("Odds reset, but lock release failed. It will expire automatically.", "error");
+      }
+    }
+    pendingPick = null;
+    resultCard.classList.add("hidden");
+    setStatus("Odds reset: meeting history cleared, names preserved.", "ok");
+    render();
+  } catch {
+    setStatus("Could not reset odds. Check your Supabase config.", "error");
   }
 });
 
