@@ -18,15 +18,16 @@
         <p class="eyebrow">Weekly Meeting Tool</p>
         <h1>Random Notetaker Rotation</h1>
         <p>
-          Fair random picker for 10 people, with reduced odds for anyone who submitted notes
-          late in the prior two weeks.
+          Fair random picker for 10 people, with a reduced chance for the person who took notes
+          last week.
         </p>
       </header>
 
       <section class="card controls">
         <div>
           <h2>Pick This Week</h2>
-          <p>Use weighted random selection based on recent picks and late-note penalties.</p>
+          <p>Use weighted random selection based on recent picks.</p>
+          <p id="syncStatus" class="sync-status">Connecting to shared state...</p>
         </div>
         <button id="pickBtn" class="btn-primary">Pick Notetaker</button>
       </section>
@@ -34,11 +35,10 @@
       <section id="resultCard" class="card result hidden" aria-live="polite">
         <h2>This Week's Notetaker</h2>
         <p id="resultName" class="result-name"></p>
-        <label class="late-toggle">
-          <input id="lateCheckbox" type="checkbox" />
-          Mark notes as submitted late
-        </label>
-        <button id="saveMeetingBtn" class="btn-primary">Save Meeting</button>
+        <div class="result-actions">
+          <button id="saveMeetingBtn" class="btn-primary">Save Meeting</button>
+          <button id="cancelPickBtn" class="btn-ghost">Cancel Pick</button>
+        </div>
       </section>
 
       <section class="grid">
@@ -53,7 +53,7 @@
 
         <article class="card">
           <h2>Recent Meetings</h2>
-          <p>Most recent first. Toggle late status if needed.</p>
+          <p>Most recent first.</p>
           <ul id="historyList" class="history-list"></ul>
         </article>
       </section>
@@ -63,8 +63,8 @@
       <li class="person-row">
         <input class="name-input" maxlength="40" />
         <div class="meta">
+          <span class="pill odds"></span>
           <span class="pill pick-count"></span>
-          <span class="pill penalty"></span>
         </div>
       </li>
     </template>
@@ -75,15 +75,11 @@
           <strong class="meeting-name"></strong>
           <p class="meeting-date"></p>
         </div>
-        <label class="late-toggle small">
-          <input class="meeting-late" type="checkbox" />
-          Late
-        </label>
       </li>
     </template>
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="app.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
