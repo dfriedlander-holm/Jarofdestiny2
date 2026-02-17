@@ -36,6 +36,7 @@
         <h2>This Week's Notetaker</h2>
         <p id="resultName" class="result-name"></p>
         <div class="result-actions">
+          <button id="skipPickBtn" class="btn-ghost">Skip</button>
           <button id="saveMeetingBtn" class="btn-primary">Save Meeting</button>
           <button id="cancelPickBtn" class="btn-ghost">Cancel Pick</button>
         </div>
@@ -46,7 +47,7 @@
           <div class="card-head">
             <h2>Team (10 people)</h2>
             <div class="head-actions">
-              <button id="resetOddsBtn" class="btn-ghost">Reset Odds (Debug)</button>
+              <button id="debugBtn" class="btn-ghost">Debug</button>
               <button id="resetBtn" class="btn-ghost">Reset Data</button>
             </div>
           </div>
@@ -80,6 +81,16 @@
         </div>
       </li>
     </template>
+
+    <dialog id="debugDialog" class="debug-dialog">
+      <h2>Debug Tools</h2>
+      <p>Choose a reset action.</p>
+      <div class="dialog-actions">
+        <button id="debugResetMeetingsBtn" class="btn-ghost">Reset List Of Meetings</button>
+        <button id="debugResetOddsBtn" class="btn-ghost">Reset Odds</button>
+        <button id="debugCloseBtn" class="btn-primary">Close</button>
+      </div>
+    </dialog>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>

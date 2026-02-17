@@ -7,10 +7,15 @@ const LOCK_TTL_SECONDS = 180;
 const pickBtn = document.getElementById("pickBtn");
 const resultCard = document.getElementById("resultCard");
 const resultName = document.getElementById("resultName");
+const skipPickBtn = document.getElementById("skipPickBtn");
 const saveMeetingBtn = document.getElementById("saveMeetingBtn");
 const cancelPickBtn = document.getElementById("cancelPickBtn");
 const resetBtn = document.getElementById("resetBtn");
-const resetOddsBtn = document.getElementById("resetOddsBtn");
+const debugBtn = document.getElementById("debugBtn");
+const debugDialog = document.getElementById("debugDialog");
+const debugCloseBtn = document.getElementById("debugCloseBtn");
+const debugResetMeetingsBtn = document.getElementById("debugResetMeetingsBtn");
+const debugResetOddsBtn = document.getElementById("debugResetOddsBtn");
 const peopleList = document.getElementById("peopleList");
 const historyList = document.getElementById("historyList");
 const personTemplate = document.getElementById("personTemplate");
@@ -30,7 +35,8 @@ function createInitialState() {
       id: `p-${i + 1}`,
       name: `Person ${i + 1}`
     })),
-    meetings: []
+    meetings: [],
+    oddsResetAt: null
   };
 }
 
@@ -56,7 +62,8 @@ function sanitizeState(input) {
         typeof m.id === "string" &&
         typeof m.personId === "string" &&
         typeof m.date === "string"
-    )
+    ),
+    oddsResetAt: typeof input.oddsResetAt === "string" ? input.oddsResetAt : null
   };
 }
 
@@ -104,15 +111,20 @@ function computeDerived(state) {
   );
 
   const meetingsSorted = [...state.meetings].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const cutoff = state.oddsResetAt ? new Date(state.oddsResetAt).getTime() : null;
+  const meetingsForOdds =
+    cutoff && !Number.isNaN(cutoff)
+      ? meetingsSorted.filter((m) => new Date(m.date).getTime() >= cutoff)
+      : meetingsSorted;
 
-  for (const meeting of meetingsSorted) {
+  for (const meeting of meetingsForOdds) {
     if (!statsById[meeting.personId]) continue;
 
     statsById[meeting.personId].picks += 1;
     statsById[meeting.personId].lastPickedAt = meeting.date;
   }
 
-  const lastMeeting = meetingsSorted.length ? meetingsSorted[meetingsSorted.length - 1] : null;
+  const lastMeeting = meetingsForOdds.length ? meetingsForOdds[meetingsForOdds.length - 1] : null;
   return { statsById, lastMeeting };
 }
 
@@ -351,6 +363,20 @@ pickBtn.addEventListener("click", async () => {
   setStatus("Pick locked for 3 minutes while you confirm or cancel.", "ok");
 });
 
+skipPickBtn.addEventListener("click", () => {
+  if (!pendingPick || !appState) return;
+  if (!lockOwnedByThisClient(activeLock)) {
+    setStatus("You no longer hold the lock. Start a new pick.", "error");
+    return;
+  }
+
+  const derived = computeDerived(appState);
+  const weightData = computeWeightData(appState, derived);
+  pendingPick = weightedPick(appState, weightData);
+  resultName.textContent = pendingPick.name;
+  setStatus("Skipped and repicked. Skipped person is still in the mix.", "ok");
+});
+
 saveMeetingBtn.addEventListener("click", async () => {
   if (!pendingPick || !appState) return;
 
@@ -404,12 +430,29 @@ resetBtn.addEventListener("click", async () => {
   }
 });
 
-resetOddsBtn.addEventListener("click", async () => {
-  const confirmed = window.confirm("Reset odds by clearing meeting history for everyone? Names will stay.");
+function openDebugDialog() {
+  if (typeof debugDialog.showModal === "function") {
+    debugDialog.showModal();
+    return;
+  }
+  debugDialog.setAttribute("open", "");
+}
+
+function closeDebugDialog() {
+  if (typeof debugDialog.close === "function") {
+    debugDialog.close();
+    return;
+  }
+  debugDialog.removeAttribute("open");
+}
+
+async function resetMeetingsList() {
+  const confirmed = window.confirm("Reset list of meetings for everyone? Names will stay.");
   if (!confirmed || !appState) return;
 
   const nextState = structuredClone(appState);
   nextState.meetings = [];
+  nextState.oddsResetAt = null;
 
   try {
     await saveStateToSupabase(nextState);
@@ -422,12 +465,44 @@ resetOddsBtn.addEventListener("click", async () => {
     }
     pendingPick = null;
     resultCard.classList.add("hidden");
-    setStatus("Odds reset: meeting history cleared, names preserved.", "ok");
+    setStatus("Meeting list reset. Names preserved.", "ok");
+    closeDebugDialog();
+    render();
+  } catch {
+    setStatus("Could not reset meeting list. Check your Supabase config.", "error");
+  }
+}
+
+async function resetOddsOnly() {
+  const confirmed = window.confirm("Reset odds baseline for everyone while keeping meeting list?");
+  if (!confirmed || !appState) return;
+
+  const nextState = structuredClone(appState);
+  nextState.oddsResetAt = new Date().toISOString();
+
+  try {
+    await saveStateToSupabase(nextState);
+    if (pendingPick) {
+      try {
+        await releasePickLock();
+      } catch {
+        setStatus("Odds reset, but lock release failed. It will expire automatically.", "error");
+      }
+    }
+    pendingPick = null;
+    resultCard.classList.add("hidden");
+    setStatus("Odds reset. Meeting list kept.", "ok");
+    closeDebugDialog();
     render();
   } catch {
     setStatus("Could not reset odds. Check your Supabase config.", "error");
   }
-});
+}
+
+debugBtn.addEventListener("click", openDebugDialog);
+debugCloseBtn.addEventListener("click", closeDebugDialog);
+debugResetMeetingsBtn.addEventListener("click", resetMeetingsList);
+debugResetOddsBtn.addEventListener("click", resetOddsOnly);
 
 async function initializeSharedState() {
   const config = window.APP_CONFIG || {};
