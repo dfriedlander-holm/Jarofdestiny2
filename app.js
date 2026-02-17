@@ -16,6 +16,8 @@ const debugDialog = document.getElementById("debugDialog");
 const debugCloseBtn = document.getElementById("debugCloseBtn");
 const debugResetMeetingsBtn = document.getElementById("debugResetMeetingsBtn");
 const debugResetOddsBtn = document.getElementById("debugResetOddsBtn");
+const debugTrialsBtn = document.getElementById("debugTrialsBtn");
+const debugTrialsResults = document.getElementById("debugTrialsResults");
 const peopleList = document.getElementById("peopleList");
 const historyList = document.getElementById("historyList");
 const personTemplate = document.getElementById("personTemplate");
@@ -446,6 +448,56 @@ function closeDebugDialog() {
   debugDialog.removeAttribute("open");
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function runTrialSimulation(trialCount = 1000) {
+  if (!appState) return;
+
+  const derived = computeDerived(appState);
+  const weightData = computeWeightData(appState, derived);
+  const countsById = Object.fromEntries(appState.people.map((p) => [p.id, 0]));
+
+  for (let i = 0; i < trialCount; i += 1) {
+    const winner = weightedPick(appState, weightData);
+    countsById[winner.id] += 1;
+  }
+
+  const maxCount = Math.max(...Object.values(countsById), 1);
+  const rowsHtml = appState.people
+    .map((person) => {
+      const count = countsById[person.id];
+      const observedPct = ((count / trialCount) * 100).toFixed(1);
+      const expectedPct = ((weightData.oddsById[person.id] || 0) * 100).toFixed(1);
+      const widthPct = (count / maxCount) * 100;
+
+      return `
+        <div class="trial-row">
+          <div class="trial-row-head">
+            <strong>${escapeHtml(person.name)}</strong>
+            <span>${count} picks (${observedPct}%) · expected ${expectedPct}%</span>
+          </div>
+          <div class="trial-bar">
+            <div class="trial-bar-fill" style="width: ${widthPct.toFixed(1)}%"></div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  debugTrialsResults.innerHTML = `
+    <p><strong>1000-trial histogram</strong></p>
+    ${rowsHtml}
+  `;
+  debugTrialsResults.classList.remove("hidden");
+}
+
 async function resetMeetingsList() {
   const confirmed = window.confirm("Reset list of meetings for everyone? Names will stay.");
   if (!confirmed || !appState) return;
@@ -503,6 +555,7 @@ debugBtn.addEventListener("click", openDebugDialog);
 debugCloseBtn.addEventListener("click", closeDebugDialog);
 debugResetMeetingsBtn.addEventListener("click", resetMeetingsList);
 debugResetOddsBtn.addEventListener("click", resetOddsOnly);
+debugTrialsBtn.addEventListener("click", () => runTrialSimulation(1000));
 
 async function initializeSharedState() {
   const config = window.APP_CONFIG || {};
