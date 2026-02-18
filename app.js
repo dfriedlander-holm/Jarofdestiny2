@@ -71,7 +71,7 @@ function sanitizeState(input) {
 
 function setStatus(text, type = "") {
   syncStatus.textContent = text;
-  syncStatus.classList.remove("ok", "error");
+  syncStatus.classList.remove("ok", "error", "warn");
   if (type) syncStatus.classList.add(type);
 }
 
@@ -223,7 +223,7 @@ async function refreshLockStatus() {
   updatePickButtonState();
 
   if (isLockActive(activeLock) && !lockOwnedByThisClient(activeLock)) {
-    setStatus("Another user is currently picking. Please wait for lock expiry or save.", "error");
+    setStatus("Another user is currently picking. Please wait for lock expiry or save.", "warn");
   }
 }
 
@@ -340,7 +340,7 @@ pickBtn.addEventListener("click", async () => {
   }
 
   if (isLockActive(activeLock) && !lockOwnedByThisClient(activeLock)) {
-    setStatus("Another user currently holds the pick lock.", "error");
+    setStatus("Another user currently holds the pick lock.", "warn");
     return;
   }
 
@@ -362,7 +362,7 @@ pickBtn.addEventListener("click", async () => {
   pendingPick = chosenPerson;
   resultName.textContent = pendingPick.name;
   resultCard.classList.remove("hidden");
-  setStatus("Pick locked for 3 minutes while you confirm or cancel.", "ok");
+  setStatus("Pick locked for 3 minutes while you confirm or cancel.", "warn");
 });
 
 skipPickBtn.addEventListener("click", () => {

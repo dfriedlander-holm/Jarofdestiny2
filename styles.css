@@ -20,10 +20,7 @@ body {
   min-height: 100vh;
   font-family: "Space Grotesk", sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 10% 0%, #c8eafb 0%, transparent 45%),
-    radial-gradient(circle at 90% 20%, #ffe0d0 0%, transparent 35%),
-    linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  background: var(--bg-1);
 }
 
 .app-shell {
@@ -91,6 +88,10 @@ h2 {
   color: var(--ok);
 }
 
+.sync-status.warn {
+  color: var(--highlight);
+}
+
 .btn-primary,
 .btn-ghost {
   border-radius: 999px;
@@ -120,12 +121,14 @@ h2 {
 .result {
   border: 1px solid var(--highlight);
   background: linear-gradient(180deg, #fff5ef, #ffffff);
+  box-shadow: inset 4px 0 0 var(--highlight);
 }
 
 .result-name {
   font-size: 2rem;
   font-family: "Fraunces", serif;
   margin: 0.4rem 0 0.9rem;
+  color: var(--highlight);
 }
 
 .result-actions {
@@ -264,7 +267,21 @@ h2 {
 
 .trial-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--secondary), var(--highlight));
+  background: var(--secondary);
+  border-right: 3px solid var(--highlight);
+}
+
+#saveMeetingBtn {
+  border-color: #b24a13;
+  background: linear-gradient(180deg, #ff7f45, var(--highlight));
+}
+
+#debugBtn,
+#debugResetMeetingsBtn,
+#debugResetOddsBtn,
+#debugTrialsBtn {
+  border-color: var(--highlight);
+  color: var(--highlight);
 }
 
 @media (max-width: 860px) {
