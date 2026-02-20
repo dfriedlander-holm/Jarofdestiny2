@@ -45,3 +45,4 @@ Once deployed, everyone using the same site URL shares one state.
 
 - `Reset List Of Meetings`: clears meeting history and resets odds.
 - `Reset Odds`: keeps meeting history, but resets the odds baseline from now.
+- `Add IRL Pick`: manually adds a meeting pick (member + date) so odds/history match real-world picks.

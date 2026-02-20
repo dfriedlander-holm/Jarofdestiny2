@@ -90,6 +90,19 @@
         <button id="debugTrialsBtn" class="btn-ghost" type="button">Run 1000 Trials</button>
         <button id="debugCloseBtn" class="btn-primary" type="button">Close</button>
       </div>
+      <div class="irl-add">
+        <h3>Add IRL Pick</h3>
+        <p>Record a pick that happened outside the app.</p>
+        <div class="irl-add-row">
+          <label for="debugAddPickPerson">Member</label>
+          <select id="debugAddPickPerson"></select>
+        </div>
+        <div class="irl-add-row">
+          <label for="debugAddPickDate">Date</label>
+          <input id="debugAddPickDate" type="date" />
+        </div>
+        <button id="debugAddPickBtn" class="btn-primary" type="button">Add IRL Pick</button>
+      </div>
       <div id="debugTrialsResults" class="trial-results hidden" aria-live="polite"></div>
     </dialog>
 

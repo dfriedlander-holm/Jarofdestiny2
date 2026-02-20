@@ -18,6 +18,9 @@ const debugResetMeetingsBtn = document.getElementById("debugResetMeetingsBtn");
 const debugResetOddsBtn = document.getElementById("debugResetOddsBtn");
 const debugTrialsBtn = document.getElementById("debugTrialsBtn");
 const debugTrialsResults = document.getElementById("debugTrialsResults");
+const debugAddPickPerson = document.getElementById("debugAddPickPerson");
+const debugAddPickDate = document.getElementById("debugAddPickDate");
+const debugAddPickBtn = document.getElementById("debugAddPickBtn");
 const peopleList = document.getElementById("peopleList");
 const historyList = document.getElementById("historyList");
 const personTemplate = document.getElementById("personTemplate");
@@ -433,6 +436,7 @@ resetBtn.addEventListener("click", async () => {
 });
 
 function openDebugDialog() {
+  populateIrlPickControls();
   if (typeof debugDialog.showModal === "function") {
     debugDialog.showModal();
     return;
@@ -446,6 +450,25 @@ function closeDebugDialog() {
     return;
   }
   debugDialog.removeAttribute("open");
+}
+
+function toIsoFromLocalDate(localDateStr) {
+  const [year, month, day] = localDateStr.split("-").map(Number);
+  if (!year || !month || !day) return new Date().toISOString();
+  const localNoon = new Date(year, month - 1, day, 12, 0, 0, 0);
+  return localNoon.toISOString();
+}
+
+function populateIrlPickControls() {
+  if (!debugAddPickPerson || !debugAddPickDate || !appState) return;
+
+  debugAddPickPerson.innerHTML = appState.people
+    .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
+    .join("");
+
+  if (!debugAddPickDate.value) {
+    debugAddPickDate.value = new Date().toISOString().slice(0, 10);
+  }
 }
 
 function escapeHtml(value) {
@@ -560,12 +583,48 @@ async function resetOddsOnly() {
   }
 }
 
+async function addIrlPick() {
+  if (!appState || !debugAddPickPerson || !debugAddPickDate) return;
+  if (!debugAddPickPerson.value || !debugAddPickDate.value) {
+    setStatus("Choose a member and date first.", "warn");
+    return;
+  }
+
+  const nextState = structuredClone(appState);
+  nextState.meetings.push({
+    id: crypto.randomUUID(),
+    personId: debugAddPickPerson.value,
+    date: toIsoFromLocalDate(debugAddPickDate.value)
+  });
+
+  try {
+    await saveStateToSupabase(nextState);
+    if (pendingPick) {
+      try {
+        await releasePickLock();
+      } catch {
+        setStatus("IRL pick saved, but lock release failed. It will expire automatically.", "warn");
+      }
+    }
+    pendingPick = null;
+    resultCard.classList.add("hidden");
+    setStatus("IRL pick added. Odds and history updated.", "ok");
+    closeDebugDialog();
+    render();
+  } catch {
+    setStatus("Could not add IRL pick. Check your Supabase config.", "error");
+  }
+}
+
 debugBtn.addEventListener("click", openDebugDialog);
 debugCloseBtn.addEventListener("click", closeDebugDialog);
 debugResetMeetingsBtn.addEventListener("click", resetMeetingsList);
 debugResetOddsBtn.addEventListener("click", resetOddsOnly);
 if (debugTrialsBtn) {
   debugTrialsBtn.addEventListener("click", () => runTrialSimulation(1000));
+}
+if (debugAddPickBtn) {
+  debugAddPickBtn.addEventListener("click", addIrlPick);
 }
 
 async function initializeSharedState() {
