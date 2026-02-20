@@ -268,6 +268,7 @@ function render() {
 
   renderPeople(appState, derived, weightData);
   renderHistory(appState);
+  populateIrlPickControls();
   updatePickButtonState();
 }
 
@@ -462,9 +463,14 @@ function toIsoFromLocalDate(localDateStr) {
 function populateIrlPickControls() {
   if (!debugAddPickPerson || !debugAddPickDate || !appState) return;
 
-  debugAddPickPerson.innerHTML = appState.people
+  const optionsHtml = appState.people
     .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
     .join("");
+  debugAddPickPerson.innerHTML = optionsHtml;
+
+  if (!optionsHtml) {
+    debugAddPickPerson.innerHTML = '<option value="">No members found</option>';
+  }
 
   if (!debugAddPickDate.value) {
     debugAddPickDate.value = new Date().toISOString().slice(0, 10);
