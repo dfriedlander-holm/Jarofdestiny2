@@ -461,15 +461,21 @@ function toIsoFromLocalDate(localDateStr) {
 }
 
 function populateIrlPickControls() {
-  if (!debugAddPickPerson || !debugAddPickDate || !appState) return;
+  if (!debugAddPickPerson || !debugAddPickDate) return;
 
-  const optionsHtml = appState.people
+  const fallbackPeople = createInitialState().people;
+  const people = Array.isArray(appState?.people) && appState.people.length ? appState.people : fallbackPeople;
+  const previousValue = debugAddPickPerson.value;
+
+  const optionsHtml = people
     .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
     .join("");
   debugAddPickPerson.innerHTML = optionsHtml;
 
   if (!optionsHtml) {
     debugAddPickPerson.innerHTML = '<option value="">No members found</option>';
+  } else if (previousValue && people.some((p) => p.id === previousValue)) {
+    debugAddPickPerson.value = previousValue;
   }
 
   if (!debugAddPickDate.value) {
